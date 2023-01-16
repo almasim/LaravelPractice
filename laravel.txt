@@ -1,0 +1,638 @@
+To make laravel work you need xampp (), node.js () , a composer ()
+
+every laravel project you must get the composer to the project folder by :
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+
+To get the actualy laravel make the composer do its magic by: 
+composer create-project laravel/laravel project-name
+
+Starting the laravel development server by:
+php artisan serve
+
+.env file to create connection with your database (mailing function)
+
+composer.json, package.json everything that laravel uses
+
+app/http has the middleware gives permissions to the controllers to control the module and view file
+
+everything that you need for the css ect. TO THE PUBLIC FOLDER images gifs icons everything
+
+resources has the view 
+
+
+Blade syntax: welcome.blade.php
+you can add some of the syntax in particular parts of html
+Simply add variables to html by:
+<?php 
+ /1  $world="Hi world";
+
+ /2   if($world){
+        
+    } else{
+
+    }
+?>
+/1 <a> {{ $world }} the sun is shining</a>
+
+/2  @if($world)
+
+    @endif
+
+@foreach
+@endforeach
+
+
+
+You can give the routings in the roots Folder the web.php file is the one you are looking for for simple site to site routings
+the syntax for a get route:
+    Route::get('/about', function () {
+        return view('about');
+    });
+You can do:
+Get 
+Post 
+Put 
+Delete
+Patch
+Options
+
+if you wanna group them out in other files example:
+    Make a modules in routes folder 
+    go on name a file like frontend-routes.php
+    <?php paste it here ?>
+    use require in web with the file name and the folder
+
+
+
+How to create a controller:
+
+php artisan make:controller Folder(Optional)/Filename
+
+
+Rouring by controller: 
+Route::controller(DemoController::class)->group(function (){
+    Route::get('/about','AboutMethod')->name('about.page');
+    Route::get('/contact','ContactMethod')->name('contact.page');
+});
+
+Controllerside:
+class DemoController extends Controller
+{
+    public function AboutMethod(){
+        return view('about');
+    }
+
+    public function ContactMethod(){
+        return view('contact');
+    }
+}
+
+Calling it on the view:
+    <a href="{{ route('about.page') }}">About</a>
+    ||
+    <a href="{{ url('/about') }}">About</a>
+
+
+
+Middleware create:
+php artisan make:middleware MiddlewareName
+
+
+Breeze setup:
+composer require laravel/breeze --dev
+npm install 
+npm run dev
+
+
+Create a database
+Change the .env lines to refer that database 
+
+php artisan make:migration {name} // ifyou wanna add more migration
+
+php artisan migrate  //to start migration
+
+php artisan migrate:rollback //reverse 1  migration
+
+php artisan migrate:reset //reverse all migration
+
+php artisan migrate:rollback --step=5 // reverse the last 5 migration
+
+Whoosh now you have ur breeze thingies in ur database + login + register + ratio 
+
+if you wanna change something about the login/register/verifyemail/resetpassword go to app/http/controllers/auth
+
+Otherway:
+    Create a mail with artisan: php artisan create:mail {name}
+    app/mail
+
+
+if you wanna change the look about any of breeze go to app/resources/views/   ||  /auth
+
+Logo change is at basic/resources/components if you insterted a pic to public just call it like a html 
+
+you can include into blades with @include('foldername.foldername.filename')   //the . is literaly / ex: foldername.filename == foldername/filename
+it also must be a .blade.php extension 
+you can yield bigger contents with @yield('filename') but the other file must contain :
+@extends('admin.admin_master')  ///we get every file from admin_master like css js ect
+@section('admin') 
+At the start and 
+@endsection 
+at the end
+
+
+
+
+php artisan make:migration create_flights_table //create migration table as flight 
+
+php artisan make:model HomeSlide -m //create a homeslide model with migration table
+
+composer require intervention/image   //to install image intervention for sizing and costumizing images
+
+you have to integrate it too by going in config/app.php and search for providers comment
+
+Intervention\Image\ImageServiceProvider::class
+
+and this into the aliases array
+
+'Image' => Intervention\Image\Facades\Image::class
+
+Publish it !
+
+php artisan vendor:publish --provider="Intervention\Image\ImageServiceProviderLaravelRecent"
+
+
+
+
+
+php artisan make:model BlogCategory -m  // you make a model with migration 
+
+in the created migration costumise your create table like:
+
+        Schema::create('blog_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('example')->nullable();  //for string or image 
+            $table->text('example_desc')->nullable(); //for longer texts
+            $table->timestamps();
+        });
+
+In the model go brr:
+
+    protected $guarded=[]; //field is fillable
+
+    nothing else
+
+
+php artisan migrate //to update database w the new table
+
+
+php artisan make:controller Home/BlogCategoryController //make a controller for it 
+
+
+load it into the web.php:
+    use App\Http\Controllers\Home\BlogCategoryController
+
+and create another route group for it
+    //BlogCategory All route
+    Route::controller(BlogCategoryController::class)->group(function(){
+        Route::get('/all/blog/category','AllBlogCategory')->name('all.blog.category');
+    });
+
+Now make the function in the Controller example:
+    public function AllBlogCategory(){  //get all data from database
+        $blogcategory=BlogCategory::latest()->get();
+        return view('admin.blog_category.blog_category_all',compact('blogcategory'));
+    }
+
+Create the blog_category folder and blog_category_all.blade.php file 
+
+insert what u wanna get like :
+    @extends('admin.admin_master')
+    @section('admin')
+    ...
+
+    <h4 class="card-title">Blog Category All</h4>
+
+                            <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                <thead>
+                                <tr>
+                                    <th>Serial Number</th>
+                                    <th>Blog Category Name</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+
+
+                                <tbody>
+                                    @php($i=1)
+                                    @foreach ($blogcategory as $item) 
+                                <tr>
+                                    <td>{{$i++}}</td>
+                                    <td>{{$item->blog_category}}</td>
+                                        <a href="{{ route('edit.port',$item->id)}}" class="btn btn-info sm" title="Edit Data"><i class="fas fa-edit"></i></a>
+                                        <a href="{{ route('delete.port',$item->id) }}" id="delete" class="btn btn-danger sm" title="Delete Data"><i class="fas fa-trash-alt"></i></a>
+                                    </td>
+
+                                </tr>
+                                @endforeach
+
+    ...
+    @endsection
+
+Make a link for it with route :
+                    <li><a href="{{route('all.blog.category')}}">All Blog Category</a></li>
+
+and BOOM WADAP SoloRenekton only here with another page done 
+
+if you wanna Make a post method:
+
+
+Firtly add a new page:
+
+you can also start w the route:
+                    <li><a href="{{route('add.blog.category')}}">Add Blog Category</a></li>
+
+make a route in the web.php
+    //BlogCategory All route
+    Route::controller(BlogCategoryController::class)->group(function(){
+        Route::get('/all/blog/category','AllBlogCategory')->name('all.blog.category');
+        Route::post('/add/bog/category', 'AddBlogCategory')->name('add.blog.category'); //this is the only new line
+    });
+
+make ur method in the Controller:
+    public function AddBlogCategory(){
+        return view('admin.blog_category.blog_category_add'); //we dont pass any data so no need for compact
+    }
+
+make the blog_category_add.blade.php in the blog_category folder costumise it or copy from another page example:
+
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Blog Category Add Page</h4>
+                                        <form method="POST" action="{{ route('store.blog.category')}}" enctype="multipart/form-data">
+                                            @csrf
+                                        <div class="row mb-3">
+
+                                            <label for="example-text-input" class="col-sm-2 col-form-label">Blog Category</label>
+                                            <div class="col-sm-10">
+                                                <input class="form-control" type="text" name="blog_category" id="blog_category">
+                                            @error('blog_category')
+                                            <span class="text-danger"> {{ $message }} </span>
+                                            @enderror
+                                            </div>
+                                        </div>
+                                        <input type="submit" value="Insert Blog Category" class="btn btn-outline-info waves-effect waves-light">
+                                        </form>
+                                        <!-- end row -->
+                                    </div>
+                                </div>
+                            </div> <!-- end col -->
+
+POST PART
+
+add route for the post in the form example:
+    <form method="POST" action="{{ route('store.blog.category')}}" enctype="multipart/form-data">
+
+add the post to the web.php
+
+    Route::post('/store/blog/category', 'StoreBlogCategory')->name('store.blog.category');
+
+Add the method to the Controller:
+    public function StoreBlogCategory(Request $request){
+        $request->validate([
+            'blog_category' => 'required',
+    
+           ],[
+            'blog_category' =>'Blog Category Name is missing',
+    
+           ]);
+           $image = $request->file('port_image');
+                    $name_gen = hexdec(uniqid()).'.'.$image->getClientOriginalExtension();  // 3434343443.jpg
+        
+                    Image::make($image)->resize(1020,519)->save('upload/portfolio_page/'.$name_gen);
+                    $save_url = 'upload/portfolio_page/'.$name_gen;
+        
+                    BlogCategory::insert([
+                        'blog_category' => $request->blog_category,
+        
+                    ]); 
+                    $notification = array(
+                    'message' => 'Blog category Upload Successfull', 
+                    'alert-type' => 'success'
+                );
+        
+                return redirect()->route('all.portfolio')->with($notification);
+        
+    
+        }
+        
+EDIT (UPDATE) 
+
+Make a button to redirect to the edit page
+    <a href="{{ route('edit.blog.category',$item->id)}}" class="btn btn-info sm" title="Edit Data"><i class="fas fa-edit"></i></a>  //we request the current id bcs its in a foreach loop 
+
+In the web.php make a new route:
+    Route::get('/edit/blog/category/{id}','EditBlogCategory')->name('edit.blog.category'); //pass the id
+
+Make a function for it in the controller:
+    public function EditBlogCategory($id){   //we pass the current id
+        $blog=BlogCategory::findOrFail($id);
+        return view('admin.blog_category.blog_category_edit',compact('blog'));
+    }
+
+Create blog_category_edit page --same as add page--
+    <form method="POST" action="{{ route('update.blog.category',$blog->id)}}" enctype="multipart/form-data"> //make an update route abd pass the id
+    <input class="form-control" value="{{$blog->blog_category}}" type="text" name="blog_category" id="blog_category"> //write out the current data
+
+Make route in web.php
+    Route::post('/update/blog/category/{id}', 'UpdateBlogCategory')->name('update.blog.category'); //pass the id too
+
+Create method in the controller
+    public function UpdateBlogCategory(Request $request,$id){
+        BlogCategory::findOrFail($id)->update([
+            'blog_category' => $request->blog_category,
+
+        ]); 
+        $notification = array(
+        'message' => 'Blog category Updated Successfull', 
+        'alert-type' => 'success'
+    );
+
+    return redirect()->route('all.blog.category')->with($notification);
+    }
+
+Done Now the delete
+
+Make Route
+    <a href="{{ route('delete.blog.category',$item->id) }}" id="delete" class="btn btn-danger sm" title="Delete Data"><i class="fas fa-trash-alt"></i></a> //with a passing id
+
+Write a route in the web.php
+    Route::get('/delete/blog/category/{id}','DeleteBlogCategory')->name('delete.blog.category');
+
+Make method in controller
+    public function DeleteBlogCategory($id){
+        $blog = BlogCategory::findOrFail($id);
+        BlogCategory::findOrFail($id)->delete();
+
+         $notification = array(
+            'message' => 'Portfolio Deleted Successfully', 
+            'alert-type' => 'success'
+        );
+
+        return redirect()->back()->with($notification);
+    }
+
+Join 2 databeses
+
+Controller:
+    public function AddBlog(){
+        $catagories = BlogCategory::orderBy('blog_category','ASC')->get(); //the other table's key 
+        return view('admin.blog.blog_add',compact('catagories'));
+    }
+
+Write out into a dropdown menu:
+    <select class="form-select" name="blog_catgory_id" aria-label="Default select example">
+            @foreach ($catagories as $item)
+            <option value="{{$item->id}}">{{$item->blog_category}}</option>
+            @endforeach
+            </select>
+
+In the blog model:
+    public function Category()
+    {
+        return $this->belongsTo(BlogCategory::class,'blog_category_id','id');
+    }
+
+Intresting thingies:
+
+			php artisan make:seeder UserSeeder
+			
+	
+            class UserSeeder extends Seeder
+            {
+                /**
+                * Run the database seeds.
+                *
+                * @return void
+                */
+                public function run()
+                {
+                    for ($i=0; $i <  1000; $i++) { 
+                        DB::table('users')->insert([
+                            'name' => Str::random(10),
+                            'email' => Str::random(10).'@gmail.com',
+                            'password' => Hash::make('password'),
+                            'role'=> randRole(),
+                            'age' =>random_int(10,110)
+                        ]);
+                    }
+                    function randRole(){
+                        $a =random_int(0,2);
+                        if ($a==2) {
+                            return 'guest';
+                        } else if($a==1){
+                            return 'user';
+                        } else {
+                            return 'admin';
+                        }
+
+                    }
+                }
+            }
+
+            php artisan db:seed
+
+
+                            Installing angular :
+                            npm install -g @angular/cli
+                            ng new {name}-frontend
+                            cd {name}-frontend
+                            ng add @angular/material   //for angular materials
+                            lg -al
+                            code . //opens folder in vscode
+
+                            Copypaste everything into src
+
+                            ng serve //to sart
+                            ng serve --open //for live refresh
+                            Chrome has built in debugger for angular
+
+                            component creation:
+                            ng g c {layouts/frontend/frondend-layout-header}
+                            import from app.module
+
+
+                            If you wanna get the old values after an error write this to input:
+                            value="{{old(' nameofinput ') ?? '' }}"
+
+                            if the app key is missing generate one by:
+                            php artisan key:generate
+
+
+                            {{-- Limited to 200 characters --}}
+                            <p>{!!Str::limit($item->blog_desc,200)!!}</p>
+
+                            Display carbon date time normaly
+                            <td>{{Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</td>
+
+
+                            //Group middleware
+                            Route::middleware(['auth'])->group(function(){ 
+                                Route::controller(AdminController::class)->group(function(){
+                                    Route::get('/admin/logout','destroy')->name('admin.logout');
+                                    Route::get('/admin/profile','Profile')->name('admin.profile');
+                                    ...
+                                });
+                            });
+
+                            One way of validating :
+                            In the view
+                                            @error('blog_category')
+                                            <span class="text-danger"> {{ $message }} </span>
+                                            @enderror
+                            In the Controller:
+    public function StoreBlogCategory(Request $request){
+        $request->validate([
+                'blog_category' => 'required',
+        
+            ],[
+                'blog_category' =>'Blog Category Name is missing',
+        
+            ]);
+                        BlogCategory::insert([
+                            'blog_category' => $request->blog_category,
+            
+                        ]); 
+                        $notification = array(
+                        'message' => 'Blog category Upload Successfull', 
+                        'alert-type' => 'success'
+                    );
+            
+                    return redirect()->route('all.blog.category')->with($notification);
+            
+        
+            }
+
+            Other method with JQuery:
+
+            gotta need a JQuery link for the view :
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
+
+            in this project we have a pre written validation.js in basic/public/backend/assets/js/validate.min.js
+            put into the admin_master
+                 <script src="{{ asset('backend/assets/js/validate.min.js') }}"></script>
+
+
+The actual script:
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#myForm').validate({
+        rules: {
+            blog_category: {
+                required: true,
+            },
+            // adding more is 
+            // blog_title:{
+            //     required:true,
+            // }
+        },
+        messages:{
+            blog_category:{
+                required:"Please Enter Blog Category",
+            },
+        //  blog_title:{
+        //     required:"Please Enter Blog Title",
+        //   },
+        },
+        errorElement:'span',
+        errorPlacement:function(error,element){
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight:function(element,errorClass,validClass){
+            $(element).addClass('is-invalid');
+        },
+        unhighlight:function(element,errorClass,validClass){
+            $(element).removeClass('is-invalid');
+        },
+    });
+})
+</script>
+
+
+
+for costum pagination:
+php artisan vendor:publish --tag=laravel-pagination
+
+
+
+it will create a folder named vendor for the costum part just make a new .blade.php file put ur costum pagination into that and merge it with the vendor/pagination/default.blade.php
+
+example: (vendor/pagination/costum.blade.php)
+
+@if($paginator->hasPages())
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        @if ($paginator->onFirstPage())
+        <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">
+            <a class="page-link" href="#"><i class="far fa-long-arrow-left"></i></a>
+        </li>
+    @else
+        <li class="page-item">
+            <a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="@lang('pagination.previous')"><i class="far fa-long-arrow-left"></i></a>
+        </li>
+    @endif
+
+    @foreach ($elements as $element)
+                {{-- "Three Dots" Separator --}}
+                @if (is_string($element))
+                    <li class="disabled" aria-disabled="true"><span>{{ $element }}</span></li>
+                @endif
+
+                {{-- Array Of Links --}}
+                @if (is_array($element))
+                    @foreach ($element as $page => $url)
+                        @if ($page == $paginator->currentPage())
+                            <li class="page-item active" aria-current="page"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                        @else
+                            <li><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                        @endif
+                    @endforeach
+                @endif
+    @endforeach
+
+    @if ($paginator->hasMorePages())
+    <li>
+        <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')"><i class="far fa-long-arrow-right"></i></a>
+    </li>
+    @else
+        <li class="disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
+            <a class=" page-link" href="#"><i class="far fa-long-arrow-right"></i></a>
+        </li>
+    @endif
+    </ul>
+</nav>
+@endif
+
+
+how to execute it :
+                    <div class="pagination-wrap">
+                        {{$allblogs->links('vendor.pagination.costum')}}
+                    </div>
+
+
+
+
+
+After u are done w everything and want to deploy:
+
+export the database for backup
+then run these commands
+
+php artisan config:cache   //Cache the config
+
+php artisan cache:clear    //clear your cache 
+
+php artisan view:clear      // Clear your view
+
+

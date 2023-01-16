@@ -1,0 +1,1 @@
+<img src="{{ asset('logo/kitty.svg')}}" width="100px">

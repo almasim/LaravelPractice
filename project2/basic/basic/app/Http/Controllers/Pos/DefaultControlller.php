@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Controllers\Pos;
+
+use App\Http\Controllers\Controller;
+use App\Models\Product;
+use Illuminate\Http\Request;
+
+class DefaultControlller extends Controller
+{
+    // Get Category id  by supplier
+    public function GetCategory(Request $request){
+        $supplier_id=$request->supplier_id;
+        $allCategory=Product::with(['category'])->select('category_id')->where('supplier_id',$supplier_id)->groupBy('category_id')->get();
+        return response()->json($allCategory);
+    }
+    //End
+
+    // Get Product by category ID
+    public function GetProduct(Request $request){
+        $category_id=$request->category_id;
+        $allProduct=Product::where('category_id',$category_id)->get();
+        return response()->json($allProduct);
+    }
+    //End
+
+    //Getting how much is the quantity by the product id
+    public function CheckProduct(Request $request){  //geting stock
+        $product_id = $request->product_id;
+    $stock=Product::where('id',$product_id)->first()->quantity;
+    return response()->json($stock);
+    }
+    //End
+}
